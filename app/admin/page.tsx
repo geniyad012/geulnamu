@@ -40,6 +40,7 @@ import {
 import { isLoggedIn, logout } from "@/lib/auth"
 import { updateFeaturedBook } from "@/lib/featured-book"
 import { getHeroSettings, updateHeroSettings, type HeroSettings } from "@/lib/hero-settings"
+import { compressImageFile } from "@/lib/compress-image"
 import {
   addExpectedAttendee,
   getExpectedAttendees,
@@ -229,15 +230,21 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const handleDefaultImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDefaultImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setDefaultImagePreview(reader.result as string)
-        setDefaultImageUrl(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    try {
+      const compressedDataUrl = await compressImageFile(file, {
+        maxWidth: 900,
+        maxHeight: 675,
+        quality: 0.78,
+      })
+      setDefaultImagePreview(compressedDataUrl)
+      setDefaultImageUrl(compressedDataUrl)
+    } catch (error) {
+      console.error("Error compressing hero image:", error)
+      setHeroMessage({ type: "error", text: "이미지 처리 중 오류가 발생했습니다." })
     }
   }
 

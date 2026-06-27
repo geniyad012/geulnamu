@@ -19,13 +19,19 @@ export default function Page() {
   const [isDesignatedReadingDialogOpen, setIsDesignatedReadingDialogOpen] = useState(false)
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadHeroSettings = async () => {
       try {
-        // Load hero settings
         const settings = await getHeroSettings()
         setHeroSettings(settings)
+      } catch (error) {
+        console.error("Error loading hero settings:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-        // Load featured book
+    const loadFeaturedBook = async () => {
+      try {
         const response = await fetch("/api/featured-book")
         if (response.ok) {
           const book = await response.json()
@@ -34,14 +40,13 @@ export default function Page() {
           setFeaturedBook(null)
         }
       } catch (error) {
-        console.error("Error loading data:", error)
+        console.error("Error loading featured book:", error)
         setFeaturedBook(null)
-      } finally {
-        setLoading(false)
       }
     }
 
-    loadData()
+    loadHeroSettings()
+    loadFeaturedBook()
   }, [])
 
   const scrollToSection = (sectionId: string) => {
@@ -182,8 +187,8 @@ export default function Page() {
                 alt="글나무 모임사진"
                 fill
                 priority
-                quality={75}
-                sizes="(max-width: 768px) 100vw, 900px"
+                fetchPriority="high"
+                sizes="(max-width: 430px) 430px, 900px"
                 className="object-cover object-center"
               />
             )}
