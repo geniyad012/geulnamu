@@ -1,0 +1,11 @@
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://geulnamu.vercel.app/sitemap.xml
+
+# Disallow admin pages
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
