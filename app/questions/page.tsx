@@ -132,16 +132,26 @@ export default function QuestionsPage() {
     }
   }
 
+  const getTodayDateString = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const day = String(now.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+
+    const questionDate = selectedDate ?? getTodayDateString()
 
     try {
       const supabase = createClient()
       const { error } = await supabase
         .from("questions")
         .insert([{
-          question_date: selectedDate,
+          question_date: questionDate,
           group_number: parseInt(formData.groupNumber),
           author_name: formData.authorName,
           content: formData.content,
@@ -157,8 +167,15 @@ export default function QuestionsPage() {
         content: "",
         password: "",
       })
+      if (!selectedDate) {
+        setSelectedDate(questionDate)
+      }
       loadDates()
-      if (selectedDate && selectedGroup) {
+      const groupNum = parseInt(formData.groupNumber)
+      if (groupNum && !isNaN(groupNum)) {
+        setSelectedGroup(groupNum)
+        loadQuestions(questionDate, groupNum)
+      } else if (selectedDate && selectedGroup) {
         loadQuestions(selectedDate, selectedGroup)
       }
     } catch (error) {
